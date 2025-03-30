@@ -2,23 +2,12 @@ import pygame
 from random import randint
 from sys import exit
 
-# TODO:
-# - Implement options menu
-# - Implement pop up window with Failed and Solved message
-# - Implement scoreboard
-# - Add docstrings to all functions
-
-# - Implement board solver to check if generated board is solvable without guessing
-
-# - Implement different classes with Game States?
-
-
 
 class Minesweeper:  # Play State
     def __init__(self):
         self.rows = 9
         self.columns = 9
-        self.num_bombs = 2
+        self.num_bombs = 10
 
         # Variables for dict of Tile class elements
         self.tiles: dict[tuple[int, int], Tile] = {}
@@ -72,7 +61,45 @@ class Minesweeper:  # Play State
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.clock = pygame.time.Clock()
 
+        self.load_assets()
         self.new_game()
+
+
+    def load_assets(self) -> None:
+        self.tile_images = {'closed_blank': pygame.transform.scale_by(pygame.image.load('images/tile/closed_blank.png').convert(), self.ui_scale),
+                            'closed_flagged': pygame.transform.scale_by(pygame.image.load('images/tile/closed_flagged.png').convert(), self.ui_scale),
+                            'closed_question': pygame.transform.scale_by(pygame.image.load('images/tile/closed_question.png').convert(), self.ui_scale),
+                            'open_bomb': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb.png').convert(), self.ui_scale),
+                            'open_bomb_red': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb_red.png').convert(), self.ui_scale),
+                            'open_bomb_missflagged': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb_missflagged.png').convert(), self.ui_scale),
+                            'open_0': pygame.transform.scale_by(pygame.image.load('images/tile/open0.png').convert(), self.ui_scale),
+                            'open_1': pygame.transform.scale_by(pygame.image.load('images/tile/open1.png').convert(), self.ui_scale),
+                            'open_2': pygame.transform.scale_by(pygame.image.load('images/tile/open2.png').convert(), self.ui_scale),
+                            'open_3': pygame.transform.scale_by(pygame.image.load('images/tile/open3.png').convert(), self.ui_scale),
+                            'open_4': pygame.transform.scale_by(pygame.image.load('images/tile/open4.png').convert(), self.ui_scale),
+                            'open_5': pygame.transform.scale_by(pygame.image.load('images/tile/open5.png').convert(), self.ui_scale),
+                            'open_6': pygame.transform.scale_by(pygame.image.load('images/tile/open6.png').convert(), self.ui_scale),
+                            'open_7': pygame.transform.scale_by(pygame.image.load('images/tile/open7.png').convert(), self.ui_scale),
+                            'open_8': pygame.transform.scale_by(pygame.image.load('images/tile/open8.png').convert(), self.ui_scale)}
+        
+        self.digit_images = {'-': pygame.transform.scale_by(pygame.image.load('images/digit/-.png').convert(), self.ui_scale),
+                             '0': pygame.transform.scale_by(pygame.image.load('images/digit/0.png').convert(), self.ui_scale),
+                             '1': pygame.transform.scale_by(pygame.image.load('images/digit/1.png').convert(), self.ui_scale),
+                             '2': pygame.transform.scale_by(pygame.image.load('images/digit/2.png').convert(), self.ui_scale),
+                             '3': pygame.transform.scale_by(pygame.image.load('images/digit/3.png').convert(), self.ui_scale),
+                             '4': pygame.transform.scale_by(pygame.image.load('images/digit/4.png').convert(), self.ui_scale),
+                             '5': pygame.transform.scale_by(pygame.image.load('images/digit/5.png').convert(), self.ui_scale),
+                             '6': pygame.transform.scale_by(pygame.image.load('images/digit/6.png').convert(), self.ui_scale),
+                             '7': pygame.transform.scale_by(pygame.image.load('images/digit/7.png').convert(), self.ui_scale),
+                             '8': pygame.transform.scale_by(pygame.image.load('images/digit/8.png').convert(), self.ui_scale),
+                             '9': pygame.transform.scale_by(pygame.image.load('images/digit/9.png').convert(), self.ui_scale)}
+
+        self.face_images = {'facesmile': pygame.transform.scale_by(pygame.image.load('images/face/facesmile.png').convert(), self.ui_scale),
+                            'opensmile': pygame.transform.scale_by(pygame.image.load('images/face/opensmile.png').convert(), self.ui_scale),
+                            'faceooh': pygame.transform.scale_by(pygame.image.load('images/face/faceooh.png').convert(), self.ui_scale),
+                            'facewin': pygame.transform.scale_by(pygame.image.load('images/face/facewin.png').convert(), self.ui_scale),
+                            'facedead': pygame.transform.scale_by(pygame.image.load('images/face/facedead.png').convert(), self.ui_scale)}
+    
 
 
     def draw_background(self) -> None:
@@ -383,25 +410,21 @@ class Minesweeper:  # Play State
         self.draw_background()
         
         # Draws info bar content
-        self.face = SmileFace(self.screen_width, self.ui_scale)
+        self.face = SmileFace(self.face_images, self.screen_width, self.ui_scale)
         self.face.draw(self.screen)
 
-        self.info_bomb = [Digit(0, self.digits_bomb_topleft, self.digit_width, self.ui_scale),
-                          Digit(1, self.digits_bomb_topleft, self.digit_width, self.ui_scale),
-                          Digit(2, self.digits_bomb_topleft, self.digit_width, self.ui_scale)]
-        self.info_time = [Digit(0, self.digits_time_topleft, self.digit_width, self.ui_scale),
-                          Digit(1, self.digits_time_topleft, self.digit_width, self.ui_scale),
-                          Digit(2, self.digits_time_topleft, self.digit_width, self.ui_scale)]
-        
-        for digit in self.info_bomb:
-            digit.draw(self.screen)
+        self.info_bomb = []
+        self.info_time = []
 
-        for digit in self.info_time:
-            digit.draw(self.screen)
+        for i in range(0, 3):
+            self.info_bomb.append(Digit(i, self.digit_images, self.digits_bomb_topleft, self.digit_width, self.ui_scale))
+            self.info_time.append(Digit(i, self.digit_images, self.digits_time_topleft, self.digit_width, self.ui_scale))
+            self.info_bomb[i].draw(self.screen)
+            self.info_time[i].draw(self.screen)
 
         # Draws board
         for position in self.closed_tiles:
-            tile = Tile(position, self.board_topleft, self.tile_size, self.ui_scale)
+            tile = Tile(position, self.tile_images, self.board_topleft, self.tile_size, self.ui_scale)
             self.tiles[position] = tile
         self.draw_tiles()
 
@@ -414,79 +437,52 @@ class Minesweeper:  # Play State
 
 
 class Tile(pygame.sprite.Group):
-    def __init__(self, grid_pos: tuple[int, int], screen_topleft: tuple[int, int], tile_size: int, ui_scale: int):
+    def __init__(self, grid_pos: tuple[int, int], images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], tile_size: int, ui_scale: int):
         super().__init__()
 
-        self.tile_image = {'closed_blank': pygame.transform.scale_by(pygame.image.load('images/tile/closed_blank.png').convert(), ui_scale),
-                           'closed_flagged': pygame.transform.scale_by(pygame.image.load('images/tile/closed_flagged.png').convert(), ui_scale),
-                           'closed_question': pygame.transform.scale_by(pygame.image.load('images/tile/closed_question.png').convert(), ui_scale),
-                           'open_bomb': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb.png').convert(), ui_scale),
-                           'open_bomb_red': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb_red.png').convert(), ui_scale),
-                           'open_bomb_missflagged': pygame.transform.scale_by(pygame.image.load('images/tile/open_bomb_missflagged.png').convert(), ui_scale),
-                           'open_0': pygame.transform.scale_by(pygame.image.load('images/tile/open0.png').convert(), ui_scale),
-                           'open_1': pygame.transform.scale_by(pygame.image.load('images/tile/open1.png').convert(), ui_scale),
-                           'open_2': pygame.transform.scale_by(pygame.image.load('images/tile/open2.png').convert(), ui_scale),
-                           'open_3': pygame.transform.scale_by(pygame.image.load('images/tile/open3.png').convert(), ui_scale),
-                           'open_4': pygame.transform.scale_by(pygame.image.load('images/tile/open4.png').convert(), ui_scale),
-                           'open_5': pygame.transform.scale_by(pygame.image.load('images/tile/open5.png').convert(), ui_scale),
-                           'open_6': pygame.transform.scale_by(pygame.image.load('images/tile/open6.png').convert(), ui_scale),
-                           'open_7': pygame.transform.scale_by(pygame.image.load('images/tile/open7.png').convert(), ui_scale),
-                           'open_8': pygame.transform.scale_by(pygame.image.load('images/tile/open8.png').convert(), ui_scale)}
-        self.image = self.tile_image['closed_blank']
+        self.images = images  # 'closed_blank', 'closed_flag', 'closed_question', 'open_bomb', 'open_bomb_red', 'open_bomb_missflagged'
+                              # 'open_0', 'open_1', 'open_2', 'open_3', 'open_4', 'open_5', 'open_6', 'open_7', 'open_8'
+        self.image = self.images['closed_blank']
         tile_x = screen_topleft[0] + tile_size * grid_pos[0]
         tile_y = screen_topleft[1] + tile_size * grid_pos[1]
         self.tile_rect = self.image.get_rect(topleft = (tile_x, tile_y))
 
 
     def update(self, state: str, content: str) -> None:
-        self.state = state  # closed, open, flagged, question, hover
-        if self.state == 'hover': self.image = self.tile_image['open_0']
-        if self.state == 'closed': self.image = self.tile_image['closed_blank']
-        if self.state == 'missflagged': self.image = self.tile_image['open_bomb_missflagged']
-        if self.state == 'flagged': self.image = self.tile_image['closed_flagged']
-        if self.state == 'open': self.image = self.tile_image[content]
+        self.state = state  # 'closed', 'open', 'flagged', 'question', 'hover'
+        if self.state == 'hover': self.image = self.images['open_0']
+        if self.state == 'closed': self.image = self.images['closed_blank']
+        if self.state == 'missflagged': self.image = self.images['open_bomb_missflagged']
+        if self.state == 'flagged': self.image = self.images['closed_flagged']
+        if self.state == 'open': self.image = self.images[content]
 
-    def draw(self, screen) -> None:
+    def draw(self, screen: pygame.surface.Surface) -> None:
         screen.blit(self.image, self.tile_rect)
+        print(type(screen))
 
 class Digit(pygame.sprite.Group):
-    def __init__(self, grid_pos: int, screen_topleft: tuple[int, int], digit_size: int, ui_scale: int):
+    def __init__(self, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], digit_size: int, ui_scale: int):
         super().__init__()
-        self.digit_image = {'-': pygame.transform.scale_by(pygame.image.load('images/digit/-.png').convert(), ui_scale),
-                            '0': pygame.transform.scale_by(pygame.image.load('images/digit/0.png').convert(), ui_scale),
-                            '1': pygame.transform.scale_by(pygame.image.load('images/digit/1.png').convert(), ui_scale),
-                            '2': pygame.transform.scale_by(pygame.image.load('images/digit/2.png').convert(), ui_scale),
-                            '3': pygame.transform.scale_by(pygame.image.load('images/digit/3.png').convert(), ui_scale),
-                            '4': pygame.transform.scale_by(pygame.image.load('images/digit/4.png').convert(), ui_scale),
-                            '5': pygame.transform.scale_by(pygame.image.load('images/digit/5.png').convert(), ui_scale),
-                            '6': pygame.transform.scale_by(pygame.image.load('images/digit/6.png').convert(), ui_scale),
-                            '7': pygame.transform.scale_by(pygame.image.load('images/digit/7.png').convert(), ui_scale),
-                            '8': pygame.transform.scale_by(pygame.image.load('images/digit/8.png').convert(), ui_scale),
-                            '9': pygame.transform.scale_by(pygame.image.load('images/digit/9.png').convert(), ui_scale)}
-        
-        self.image = self.digit_image['0']
+
+        self.images = images  # '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        self.image = self.images['0']
         tile_x = screen_topleft[0] + digit_size * grid_pos
         tile_y = screen_topleft[1]
         self.digit_rect = self.image.get_rect(topleft = (tile_x, tile_y))
     
 
     def update(self, content: str) -> None:
-        self.image = self.digit_image[content]
+        self.image = self.images[content]
 
 
-    def draw(self, screen) -> None:
+    def draw(self, screen: pygame.surface.Surface) -> None:
         screen.blit(self.image, self.digit_rect)
 
 class SmileFace(pygame.sprite.Sprite):
-    def __init__(self, screen_width: int, ui_scale: int):
+    def __init__(self, images: dict[str: pygame.surface.Surface], screen_width: int, ui_scale: int):
         super().__init__()
 
-        self.images = {'facesmile': pygame.transform.scale_by(pygame.image.load('images/face/facesmile.png').convert(), ui_scale),
-                       'opensmile': pygame.transform.scale_by(pygame.image.load('images/face/opensmile.png').convert(), ui_scale),
-                       'faceooh': pygame.transform.scale_by(pygame.image.load('images/face/faceooh.png').convert(), ui_scale),
-                       'facewin': pygame.transform.scale_by(pygame.image.load('images/face/facewin.png').convert(), ui_scale),
-                       'facedead': pygame.transform.scale_by(pygame.image.load('images/face/facedead.png').convert(), ui_scale)}
-        
+        self.images = images  # 'facesmile', 'opensmile', 'faceooh', 'facewin', 'facedead'
         self.image = self.images['facesmile']
         self.smile_rect = self.image.get_rect(midtop = (screen_width / ui_scale, 30))
 
@@ -495,7 +491,7 @@ class SmileFace(pygame.sprite.Sprite):
         self.image = self.images[state]
 
 
-    def draw(self, screen) -> None:
+    def draw(self, screen: pygame.surface.Surface) -> None:
         screen.blit(self.image, self.smile_rect)
 
 
