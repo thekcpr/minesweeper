@@ -3,32 +3,22 @@ from random import randint
 from sys import exit
 
 # TODO:
-# - Implement flagging
-# - Implement remaining mines counter
-# - Implement timer
-# - Implement chord reveal
 # - Implement options menu
-# - Implement pop up window wuth Fialed and Solved message
+# - Implement pop up window with Failed and Solved message
 # - Implement scoreboard
 # - Add docstrings to all functions
 
 # - Implement board solver to check if generated board is solvable without guessing
 
 # - Implement different classes with Game States?
-# - Implement Protocol from typing?
 
 
-class OptionState: pass
 
 class Minesweeper:  # Play State
     def __init__(self):
-        self.rows = 16
-        self.columns = 30
-        self.num_bombs = 60
-
-        self.is_first_move = True
-        self.bomb_list = []
-        self.open_tiles = []
+        self.rows = 9
+        self.columns = 9
+        self.num_bombs = 2
 
         # Variables for dict of Tile class elements
         self.tiles: dict[tuple[int, int], Tile] = {}
@@ -46,6 +36,10 @@ class Minesweeper:  # Play State
         
         pygame.init()
         pygame.display.set_caption('Minesweeper')
+        self.second = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.second, 1000)
+
+        self.round_time = 0
 
         self.board: dict[tuple[int, int], dict[str: str, str: str, str: str]] = {}  # dict of tile dicts
         self.empty_cell = {'state': 'closed', 'content': ''}  # states: closed / open / flagged / question. content: bomb, 0, 1, 2, 3, 4, 5, 6, 7, 8
@@ -144,9 +138,10 @@ class Minesweeper:  # Play State
 
 
     def draw_tiles(self) -> None:
-        for position in self.open_tiles:
+        for position in self.tiles_to_update:
             self.tiles[position].update(self.board[position]['state'], self.board[position]['content'])
             self.tiles[position].draw(self.screen)
+        self.tiles_to_update = []
 
 
 
@@ -171,62 +166,67 @@ class Minesweeper:  # Play State
             self.calculate_board(tile)
             self.reveal_tile(tile)
 
-        elif self.board[tile]['content'] == self.tile_content['bomb']:
-            self.end_game(tile)
-
-        elif self.is_chord(tile):
-            print('True')
-            # self.reveal_chord(tile)
+        if self.board[tile]['state'] == 'flagged':
+            return
 
         else:
+            self.hendle_chord(tile)
             self.reveal_tile(tile)
 
 
     def reveal_tile(self, tile: tuple[int, int]) -> None:
-        if self.board[(tile)]['state'] == 'closed':
-            if self.board[(tile)]['content'] == self.tile_content['0']:
+        if self.board[tile]['content'] == self.tile_content['bomb']:
+            self.face.update('facedead')
+            self.face.draw(self.screen)
+            self.failed(tile)
+            return
+        if self.board[tile]['state'] == 'closed':
+            if self.board[tile]['content'] == self.tile_content['0']:
                 self.board[tile]['state'] = 'open'
+                self.closed_tiles.remove(tile)
+                self.tiles_to_update.append(tile)
                 cluster_tiles = self.get_surrounding_tiles(tile)
                 for tile_xy in cluster_tiles:
                     self.reveal_tile(tile_xy)
 
-            elif self.board[(tile)]['content'] != self.tile_content['0']:
+            elif self.board[tile]['content'] != self.tile_content['0']:
                 self.board[tile]['state'] = 'open'
+                self.closed_tiles.remove(tile)
+                self.tiles_to_update.append(tile)
 
 
-    def is_chord(self, tile: tuple[int, int]) -> bool:
-        # Make if statement work properly
-        if self.board[tile]['content'] == self.tile_content['bomb']:
-            print('chord_tile_bomb')
-            return False
+    def hendle_chord(self, tile: tuple[int, int]) -> bool:
         if self.board[tile]['content'] == self.tile_content['0']:
-            print('chord_tile_empty')
-            return False
-
+            return
         if self.board[tile]['state'] != 'open':
-            print('chord_tile_not_open')
-            return False
+            return
         
         tiles = self.get_surrounding_tiles(tile)
-        print(tiles)
         num_flagged = 0
         num_bombs = 0
+        chords = []
         for tile_xy in tiles:
-            print(tile_xy)
             if self.board[tile_xy]['state'] == 'flagged':
-                print('chord_surround_tile_flag')
                 num_flagged += 1
             if self.board[tile_xy]['content'] == self.tile_content['bomb']:
-                print('chord_surround_tile_bomb')
                 num_bombs += 1
+            if self.board[tile_xy]['state'] == 'closed' and self.board[tile_xy]['content'] != 'bomb':
+                chords.append(tile_xy)
         if num_flagged == num_bombs:
-            return True
+            for chord in chords:
+                self.reveal_tile(chord)
 
 
-    def reveal_chord(self, tile: tuple[int, int]) -> None:
-        self.board[tile]['state'] = 'open'
-        print(tile)
-        # self.open_tiles.remove(tile)
+    def handle_flagging(self, tile: tuple[int, int]) -> None:
+        if self.board[tile]['state'] == 'closed':
+            self.board[tile]['state'] = 'flagged'
+            self.num_flags += 1
+
+        elif self.board[tile]['state'] == 'flagged':
+            self.board[tile]['state'] = 'closed'
+            self.num_flags -= 1
+
+        self.tiles_to_update.append(tile)
 
 
     def calculate_board(self, first_tile: tuple[int, int]) -> None:
@@ -261,8 +261,18 @@ class Minesweeper:  # Play State
                     # print(f'{(x, y)}, Bomb')
 
 
-    def end_game(self, tile: tuple[int, int]) -> None:
-        print(f'YOU LOOSE! Bomb: {tile}')
+    def failed(self, tile: tuple[int, int]) -> None:
+        self.board[tile]['content'] = self.tile_content['fail']
+        for tile_xy in self.closed_tiles:
+            if self.board[tile_xy]['state'] == 'flagged' and self.board[tile_xy]['content'] != self.tile_content['bomb']:
+                self.board[tile_xy]['state'] = 'missflagged'
+                self.tiles_to_update.append(tile_xy)
+        self.tiles_to_update.append(tile)
+        self.is_game_active = False
+        for bomb in self.bomb_list:
+            self.board[bomb]['state'] = 'open'
+            self.tiles_to_update.append(bomb)
+
 
 
 
@@ -272,22 +282,74 @@ class Minesweeper:  # Play State
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.face = SmileFace(self.screen_width, 'faceooh')
+                    self.face.update('faceooh')
                     self.face.draw(self.screen)
-                    # if self.get_tile_under_mouse(pygame.mouse.get_pos()):
-                    #     self.update_board(self.get_tile_under_mouse(pygame.mouse.get_pos()))
-                    #     self.update_tiles()
-                    
-                        
+                    mouse_pos = pygame.mouse.get_pos()
+                    tile_under_mouse = self.get_tile_under_mouse(mouse_pos)
+
+                    # Restart button press down animation
+                    if self.face.get_rect().collidepoint(mouse_pos):
+                        self.face.update('opensmile')
+                        self.face.draw(self.screen)
+
+                    # Tiles press down animation
+                    # if tile_under_mouse:
+
+
                 if event.type == pygame.MOUSEBUTTONUP:
-                    self.face = SmileFace(self.screen_width, 'facesmile')
+                    self.face.update('facesmile')
                     self.face.draw(self.screen)
-                    tile_uder_mouse = self.get_tile_under_mouse(pygame.mouse.get_pos())
-                    if tile_uder_mouse:
-                        self.reveal(tile_uder_mouse)
+                    mouse_pos = pygame.mouse.get_pos()
+                    tile_under_mouse = self.get_tile_under_mouse(mouse_pos)
+
+                    # Restart button click
+                    if self.face.get_rect().collidepoint(mouse_pos):
+                        self.face.update('opensmile')
+                        self.face.draw(self.screen)
+                        self.new_game()
+
+                if event.type == pygame.MOUSEBUTTONUP and self.is_game_active:
+
+                    # Tile interaction
+                    if tile_under_mouse and event.button == 1:
+                        self.reveal(tile_under_mouse)
+                        self.draw_tiles()
+                    if tile_under_mouse and event.button == 3:
+                        self.handle_flagging(tile_under_mouse)
                         self.draw_tiles()
 
+            # Solved condition
+            if len(self.closed_tiles) == self.num_bombs:
+                self.is_game_active = False
+                self.face.update('facewin')
+                self.face.draw(self.screen)
+                self.flag_remaining_tiles()
+
+            # Remaining bomb counter digits
+            bombs_left = str(self.num_bombs - self.num_flags).zfill(3)
+            self.info_bomb[0].update(bombs_left[-3])
+            self.info_bomb[1].update(bombs_left[-2])
+            self.info_bomb[2].update(bombs_left[-1])
+            
+            # Timer
+            time_elapsed = str(pygame.time.get_ticks() - self.round_time).zfill(6)
+            self.info_time[0].update(time_elapsed[-6])
+            self.info_time[1].update(time_elapsed[-5])
+            self.info_time[2].update(time_elapsed[-4])
+
+            # Updates remaining bomb counter digits
+            self.info_bomb[0].draw(self.screen)
+            self.info_bomb[1].draw(self.screen)
+            self.info_bomb[2].draw(self.screen)
+
+            if self.is_game_active:
+                # Updates timer
+                self.info_time[0].draw(self.screen)
+                self.info_time[1].draw(self.screen)
+                self.info_time[2].draw(self.screen)
+                
 
             pygame.display.update()
             self.clock.tick(60)
@@ -302,25 +364,34 @@ class Minesweeper:  # Play State
 
 
     def new_game(self) -> None:
+        self.is_game_active = True
+        self.is_first_move = True
+        self.bomb_list = []
+        self.closed_tiles = []
+        self.num_flags = 0
+        self.round_time = pygame.time.get_ticks()
+
         # Generates dict of board without content
         for x in range(self.columns):
             for y in range(self.rows):
                 self.board[(x, y)] = self.empty_cell.copy()
-                self.open_tiles.append((x, y))
+                self.closed_tiles.append((x, y))
+
+        self.tiles_to_update = self.closed_tiles.copy()
 
         # Draws UI elements
         self.draw_background()
         
         # Draws info bar content
-        self.face = SmileFace(self.screen_width, 'facesmile')
+        self.face = SmileFace(self.screen_width, self.ui_scale)
         self.face.draw(self.screen)
 
         self.info_bomb = [Digit(0, self.digits_bomb_topleft, self.digit_width, self.ui_scale),
                           Digit(1, self.digits_bomb_topleft, self.digit_width, self.ui_scale),
-                          Digit(2, self.digits_bomb_topleft, self.digit_width, self.ui_scale),]
+                          Digit(2, self.digits_bomb_topleft, self.digit_width, self.ui_scale)]
         self.info_time = [Digit(0, self.digits_time_topleft, self.digit_width, self.ui_scale),
                           Digit(1, self.digits_time_topleft, self.digit_width, self.ui_scale),
-                          Digit(2, self.digits_time_topleft, self.digit_width, self.ui_scale),]
+                          Digit(2, self.digits_time_topleft, self.digit_width, self.ui_scale)]
         
         for digit in self.info_bomb:
             digit.draw(self.screen)
@@ -328,24 +399,19 @@ class Minesweeper:  # Play State
         for digit in self.info_time:
             digit.draw(self.screen)
 
-        # for digit in self.time:
-        #     self.timer.append(Digit(digit, self.digits_bomb_topleft, self.digit_width))
-        #     print(digit)
-
         # Draws board
-        for position in self.open_tiles:
+        for position in self.closed_tiles:
             tile = Tile(position, self.board_topleft, self.tile_size, self.ui_scale)
             self.tiles[position] = tile
         self.draw_tiles()
 
 
+    def flag_remaining_tiles(self) -> None:
+        for tile in self.closed_tiles:
+            if self.board[tile]['state'] != 'flagged':
+                self.handle_flagging(tile)
+        self.draw_tiles()
 
-
-
-
-class SolvedState: pass
-
-class FailedState: pass
 
 class Tile(pygame.sprite.Group):
     def __init__(self, grid_pos: tuple[int, int], screen_topleft: tuple[int, int], tile_size: int, ui_scale: int):
@@ -376,6 +442,8 @@ class Tile(pygame.sprite.Group):
         self.state = state  # closed, open, flagged, question, hover
         if self.state == 'hover': self.image = self.tile_image['open_0']
         if self.state == 'closed': self.image = self.tile_image['closed_blank']
+        if self.state == 'missflagged': self.image = self.tile_image['open_bomb_missflagged']
+        if self.state == 'flagged': self.image = self.tile_image['closed_flagged']
         if self.state == 'open': self.image = self.tile_image[content]
 
     def draw(self, screen) -> None:
@@ -396,7 +464,7 @@ class Digit(pygame.sprite.Group):
                             '8': pygame.transform.scale_by(pygame.image.load('images/digit/8.png').convert(), ui_scale),
                             '9': pygame.transform.scale_by(pygame.image.load('images/digit/9.png').convert(), ui_scale)}
         
-        self.image = self.digit_image['-']
+        self.image = self.digit_image['0']
         tile_x = screen_topleft[0] + digit_size * grid_pos
         tile_y = screen_topleft[1]
         self.digit_rect = self.image.get_rect(topleft = (tile_x, tile_y))
@@ -410,20 +478,26 @@ class Digit(pygame.sprite.Group):
         screen.blit(self.image, self.digit_rect)
 
 class SmileFace(pygame.sprite.Sprite):
-    def __init__(self, board_width, state):
+    def __init__(self, screen_width: int, ui_scale: int):
         super().__init__()
 
-        self.images = {'facesmile': pygame.image.load('images/face/facesmile.png').convert(),
-                       'opensmile': pygame.image.load('images/face/opensmile.png').convert(),
-                       'faceooh': pygame.image.load('images/face/faceooh.png').convert(),
-                       'facewin': pygame.image.load('images/face/facewin.png').convert()}
+        self.images = {'facesmile': pygame.transform.scale_by(pygame.image.load('images/face/facesmile.png').convert(), ui_scale),
+                       'opensmile': pygame.transform.scale_by(pygame.image.load('images/face/opensmile.png').convert(), ui_scale),
+                       'faceooh': pygame.transform.scale_by(pygame.image.load('images/face/faceooh.png').convert(), ui_scale),
+                       'facewin': pygame.transform.scale_by(pygame.image.load('images/face/facewin.png').convert(), ui_scale),
+                       'facedead': pygame.transform.scale_by(pygame.image.load('images/face/facedead.png').convert(), ui_scale)}
         
-        self.image = pygame.transform.scale_by(self.images[state], 2)
-        self.smile_rect = self.image.get_rect(midtop = (board_width / 2, 30))
+        self.image = self.images['facesmile']
+        self.smile_rect = self.image.get_rect(midtop = (screen_width / ui_scale, 30))
+
+
+    def update(self, state: str):
+        self.image = self.images[state]
 
 
     def draw(self, screen) -> None:
         screen.blit(self.image, self.smile_rect)
+
 
     def get_rect(self) -> pygame.rect.Rect:
         return self.smile_rect
