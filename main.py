@@ -25,8 +25,6 @@ class Minesweeper:  # Play State
         
         pygame.init()
         pygame.display.set_caption('Minesweeper')
-        self.second = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.second, 1000)
 
         self.round_time = 0
 
@@ -100,6 +98,9 @@ class Minesweeper:  # Play State
                             'facewin': pygame.transform.scale_by(pygame.image.load('images/face/facewin.png').convert(), self.ui_scale),
                             'facedead': pygame.transform.scale_by(pygame.image.load('images/face/facedead.png').convert(), self.ui_scale)}
     
+        self.tick_sound = pygame.mixer.Sound('sounds/windows_3_1_tick.mp3')
+        self.win_sound = pygame.mixer.Sound('sounds/windows_xp_win.mp3')
+        self.lose_sound = pygame.mixer.Sound('sounds/windows_xp_lose.mp3')
 
 
     def draw_background(self) -> None:
@@ -192,6 +193,7 @@ class Minesweeper:  # Play State
             self.is_first_move = False
             self.calculate_board(tile)
             self.reveal_tile(tile)
+            self.round_time = pygame.time.get_ticks()
 
         if self.board[tile]['state'] == 'flagged':
             return
@@ -203,6 +205,7 @@ class Minesweeper:  # Play State
 
     def reveal_tile(self, tile: tuple[int, int]) -> None:
         if self.board[tile]['content'] == self.tile_content['bomb']:
+            self.lose_sound.play()
             self.face.update('facedead')
             self.face.draw(self.screen)
             self.failed(tile)
@@ -310,6 +313,9 @@ class Minesweeper:  # Play State
                     pygame.quit()
                     exit()
 
+                if event.type == self.second and self.is_game_active and self.is_first_move == False:
+                    self.tick_sound.play()
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.face.update('faceooh')
                     self.face.draw(self.screen)
@@ -348,8 +354,9 @@ class Minesweeper:  # Play State
                         self.draw_tiles()
 
             # Solved condition
-            if len(self.closed_tiles) == self.num_bombs:
+            if len(self.closed_tiles) == self.num_bombs and self.is_game_active == True:
                 self.is_game_active = False
+                self.win_sound.play()
                 self.face.update('facewin')
                 self.face.draw(self.screen)
                 self.flag_remaining_tiles()
@@ -371,7 +378,7 @@ class Minesweeper:  # Play State
             self.info_bomb[1].draw(self.screen)
             self.info_bomb[2].draw(self.screen)
 
-            if self.is_game_active:
+            if self.is_game_active and self.is_first_move == False:
                 # Updates timer
                 self.info_time[0].draw(self.screen)
                 self.info_time[1].draw(self.screen)
@@ -396,7 +403,6 @@ class Minesweeper:  # Play State
         self.bomb_list = []
         self.closed_tiles = []
         self.num_flags = 0
-        self.round_time = pygame.time.get_ticks()
 
         # Generates dict of board without content
         for x in range(self.columns):
@@ -427,6 +433,9 @@ class Minesweeper:  # Play State
             tile = Tile(position, self.tile_images, self.board_topleft, self.tile_size, self.ui_scale)
             self.tiles[position] = tile
         self.draw_tiles()
+
+        self.second = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.second, 1000)
 
 
     def flag_remaining_tiles(self) -> None:
