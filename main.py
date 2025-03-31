@@ -5,9 +5,9 @@ from sys import exit
 
 class Minesweeper:  # Play State
     def __init__(self):
-        self.rows = 16
-        self.columns = 16
-        self.num_bombs = 40
+        self.rows = 9
+        self.columns = 9
+        self.num_bombs = 10
 
         # Variables for dict of Tile class elements
         self.tiles: dict[tuple[int, int], Tile] = {}
@@ -29,7 +29,7 @@ class Minesweeper:  # Play State
         self.empty_cell = {'state': 'closed', 'content': ''}  # states: closed / open / flagged / question. content: bomb, 0, 1, 2, 3, 4, 5, 6, 7, 8
 
         pygame.init()
-        self.minesweeper_icon = pygame.image.load('images/icon/Minesweeper_Icon_App-assets/Icon-macOS-512x512@1x.png')
+        self.minesweeper_icon = pygame.image.load('images/icon/Minesweeper_Icon_App-assets/Icon-macOS-256x256@1x.png')
         pygame.display.set_icon(self.minesweeper_icon)
         pygame.display.set_caption('Minesweeper')
 
@@ -247,14 +247,17 @@ class Minesweeper:  # Play State
                 self.reveal_tile(chord)
 
 
-    def handle_flagging(self, tile: tuple[int, int]) -> None:
+    def handle_right_click(self, tile: tuple[int, int]) -> None:
         if self.board[tile]['state'] == 'closed':
             self.board[tile]['state'] = 'flagged'
             self.num_flags += 1
 
         elif self.board[tile]['state'] == 'flagged':
-            self.board[tile]['state'] = 'closed'
+            self.board[tile]['state'] = 'question'
             self.num_flags -= 1
+
+        elif self.board[tile]['state'] == 'question':
+            self.board[tile]['state'] = 'closed'
 
         self.tiles_to_update.append(tile)
 
@@ -300,8 +303,9 @@ class Minesweeper:  # Play State
         self.tiles_to_update.append(tile)
         self.is_game_active = False
         for bomb in self.bomb_list:
-            self.board[bomb]['state'] = 'open'
-            self.tiles_to_update.append(bomb)
+            if self.board[bomb]['state'] != 'flagged':
+                self.board[bomb]['state'] = 'open'
+                self.tiles_to_update.append(bomb)
 
 
 
@@ -350,7 +354,7 @@ class Minesweeper:  # Play State
                         self.reveal(tile_under_mouse)
                         self.draw_tiles()
                     if tile_under_mouse and event.button == 3:
-                        self.handle_flagging(tile_under_mouse)
+                        self.handle_right_click(tile_under_mouse)
                         self.draw_tiles()
 
             # Solved condition
@@ -441,7 +445,9 @@ class Minesweeper:  # Play State
     def flag_remaining_tiles(self) -> None:
         for tile in self.closed_tiles:
             if self.board[tile]['state'] != 'flagged':
-                self.handle_flagging(tile)
+                self.board[tile]['state'] = 'flagged'
+                self.num_flags += 1
+                self.tiles_to_update.append(tile)
         self.draw_tiles()
 
 
@@ -463,6 +469,7 @@ class Tile(pygame.sprite.Group):
         if self.state == 'closed': self.image = self.images['closed_blank']
         if self.state == 'missflagged': self.image = self.images['open_bomb_missflagged']
         if self.state == 'flagged': self.image = self.images['closed_flagged']
+        if self.state == 'question': self.image = self.images['closed_question']
         if self.state == 'open': self.image = self.images[content]
 
     def draw(self, screen: pygame.surface.Surface) -> None:
