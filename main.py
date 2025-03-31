@@ -5,9 +5,9 @@ from sys import exit
 
 class Minesweeper:  # Play State
     def __init__(self):
-        self.rows = 9
-        self.columns = 9
-        self.num_bombs = 10
+        self.rows = 16
+        self.columns = 16
+        self.num_bombs = 40
 
         # Variables for dict of Tile class elements
         self.tiles: dict[tuple[int, int], Tile] = {}
@@ -23,13 +23,15 @@ class Minesweeper:  # Play State
                              '7': 'open_7',
                              '8': 'open_8'}
         
-        pygame.init()
-        pygame.display.set_caption('Minesweeper')
-
         self.round_time = 0
 
         self.board: dict[tuple[int, int], dict[str: str, str: str, str: str]] = {}  # dict of tile dicts
         self.empty_cell = {'state': 'closed', 'content': ''}  # states: closed / open / flagged / question. content: bomb, 0, 1, 2, 3, 4, 5, 6, 7, 8
+
+        pygame.init()
+        self.minesweeper_icon = pygame.image.load('images/icon/Minesweeper_Icon_App-assets/Icon-macOS-512x512@1x.png')
+        pygame.display.set_icon(self.minesweeper_icon)
+        pygame.display.set_caption('Minesweeper')
 
         # Background variables
         self.ui_scale = 2
@@ -43,8 +45,6 @@ class Minesweeper:  # Play State
         self.info_height = (2 * 4) * self.ui_scale + self.info_beavel + self.digit_height  # (4 + 1 + 23 + 1 + 4)
 
         self.tile_size = 16 * self.ui_scale
-
-        self.mouse_is_down = False
 
         self.screen_width = 2 * self.border + 4 * self.beavel + self.tile_size * self.columns + 2.5
         self.screen_height = 3 * self.border + 4 * self.beavel + 2 * self.info_beavel + self.info_height + self.tile_size * self.rows + 2.5
@@ -467,7 +467,6 @@ class Tile(pygame.sprite.Group):
 
     def draw(self, screen: pygame.surface.Surface) -> None:
         screen.blit(self.image, self.tile_rect)
-        print(type(screen))
 
 class Digit(pygame.sprite.Group):
     def __init__(self, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], digit_size: int, ui_scale: int):
@@ -493,7 +492,7 @@ class SmileFace(pygame.sprite.Sprite):
 
         self.images = images  # 'facesmile', 'opensmile', 'faceooh', 'facewin', 'facedead'
         self.image = self.images['facesmile']
-        self.smile_rect = self.image.get_rect(midtop = (screen_width / ui_scale, 30))
+        self.smile_rect = self.image.get_rect(midtop = (screen_width / 2, 15 * ui_scale))
 
 
     def update(self, state: str):

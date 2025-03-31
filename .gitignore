@@ -4,3 +4,4 @@
 # Ignore Python bytecode and cache
 __pycache__/
 *.py[cod]
+setup.py

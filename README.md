@@ -1,7 +1,16 @@
 # Classic Minesweeper in Pygame
 
-Recreation of the classic Minesweeper game with modern Pygame visuals and mechanics.  
-Game built using [Pygame](https://www.pygame.org/news) in Python.
+<table>
+  <tr>
+    <td>
+      <img src="images/icon/Minesweeper_Icon_App-assets/Icon-macOS-256x256@1x.png" alt="Minesweeper Icon" width="256">
+    </td>
+    <td>
+      Python implementation of the classic Minesweeper game with modern visuals and mechanics.<br>
+      Game built using <a href="https://www.pygame.org/news">Pygame</a>.
+    </td>
+  </tr>
+</table>
 
 ![Beginner Level](screenshots/gameplay-beginner.png)
 
