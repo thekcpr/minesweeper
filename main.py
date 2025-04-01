@@ -32,12 +32,20 @@ class Minesweeper:  # Play State
         self.minesweeper_icon = pygame.image.load('images/icon/Minesweeper_Icon_App-assets/Icon-macOS-256x256@1x.png')
         pygame.display.set_icon(self.minesweeper_icon)
         pygame.display.set_caption('Minesweeper')
+        self.display_init()
+        self.load_assets()
+        self.new_game()
+
+
+    def display_init(self) -> None:
 
         # Background variables
         self.ui_scale = 2
         self.beavel = 3 * self.ui_scale
         self.border = 6 * self.ui_scale
 
+
+        self.menu_bar_height = 22 * self.ui_scale
         self.info_beavel = 2 * self.ui_scale
         self.digit_beavel = 1 * self.ui_scale
         self.digit_width = 13 * self.ui_scale
@@ -47,20 +55,18 @@ class Minesweeper:  # Play State
         self.tile_size = 16 * self.ui_scale
 
         self.screen_width = 2 * self.border + 4 * self.beavel + self.tile_size * self.columns + 2.5
-        self.screen_height = 3 * self.border + 4 * self.beavel + 2 * self.info_beavel + self.info_height + self.tile_size * self.rows + 2.5
+        self.screen_height = self.menu_bar_height + 3 * self.border + 4 * self.beavel + 2 * self.info_beavel + self.info_height + self.tile_size * self.rows + 2.5
 
         self.board_topleft = (2 * self.beavel + self.border + 1,
-                              2 * self.beavel + 2 * self.border + 2 * self.info_beavel + self.info_height + 1)
+                              self.menu_bar_height + 2 * self.beavel + 2 * self.border + 2 * self.info_beavel + self.info_height + 1)
         self.digits_bomb_topleft = (self.beavel + 2  * self.border + self.info_beavel + self.digit_beavel,
-                                    self.beavel + self.border + self.info_beavel + 4 * self.ui_scale + self.digit_beavel)
+                                    self.menu_bar_height + self.beavel + self.border + self.info_beavel + 4 * self.ui_scale + self.digit_beavel)
         self.digits_time_topleft = (self.screen_width - self.beavel - 2 * self.border - self.info_beavel - 2 * self.digit_beavel - 3 * self.digit_width,
-                                    self.beavel + self.border + self.info_beavel + 4 * self.ui_scale + self.digit_beavel)
+                                    self.menu_bar_height + self.beavel + self.border + self.info_beavel + 4 * self.ui_scale + self.digit_beavel)
+        self.face_button_midtop = (self.screen_width / 2,
+                                   self.menu_bar_height + self.beavel + self.border + self.info_beavel + 4 * self.ui_scale)
 
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        self.clock = pygame.time.Clock()
-
-        self.load_assets()
-        self.new_game()
 
 
     def load_assets(self) -> None:
@@ -97,7 +103,16 @@ class Minesweeper:  # Play State
                             'faceooh': pygame.transform.scale_by(pygame.image.load('images/face/faceooh.png').convert(), self.ui_scale),
                             'facewin': pygame.transform.scale_by(pygame.image.load('images/face/facewin.png').convert(), self.ui_scale),
                             'facedead': pygame.transform.scale_by(pygame.image.load('images/face/facedead.png').convert(), self.ui_scale)}
-    
+
+        self.menu_icons = {'beginner_active': pygame. transform.scale_by(pygame.image.load('images/menu/beginner_active.png').convert(), self.ui_scale),
+                           'beginner_inactive': pygame. transform.scale_by(pygame.image.load('images/menu/beginner_inactive.png').convert(), self.ui_scale),
+                           'intermediate_active': pygame. transform.scale_by(pygame.image.load('images/menu/intermediate_active.png').convert(), self.ui_scale),
+                           'intermediate_inactive': pygame. transform.scale_by(pygame.image.load('images/menu/intermediate_inactive.png').convert(), self.ui_scale),
+                           'expert_active': pygame. transform.scale_by(pygame.image.load('images/menu/expert_active.png').convert(), self.ui_scale),
+                           'expert_inactive': pygame. transform.scale_by(pygame.image.load('images/menu/expert_inactive.png').convert(), self.ui_scale),
+                           'custom_active': pygame. transform.scale_by(pygame.image.load('images/menu/custom_active.png').convert(), self.ui_scale),
+                           'custom_inactive': pygame. transform.scale_by(pygame.image.load('images/menu/custom_inactive.png').convert(), self.ui_scale)}
+
         self.tick_sound = pygame.mixer.Sound('sounds/windows_3_1_tick.mp3')
         self.win_sound = pygame.mixer.Sound('sounds/windows_xp_win.mp3')
         self.lose_sound = pygame.mixer.Sound('sounds/windows_xp_lose.mp3')
@@ -105,21 +120,25 @@ class Minesweeper:  # Play State
 
     def draw_background(self) -> None:
         self.screen.fill((192, 192, 192))
+
+        # Menu bar
+        pygame.draw.rect(self.screen, 'White', [(0, 0), (self.screen_width, self.menu_bar_height - 1)])
+
         # Border around the screen
-        topleft = (0, 0)
+        topleft = (0, self.menu_bar_height)
         bottomright = (self.screen_width, self.screen_height)
         self.draw_bevaled_border(topleft, bottomright, self.beavel, 'outset')
 
         # Border around info bar
         topleft = (self.beavel + self.border,
-                   self.beavel + self.border)
+                   self.menu_bar_height + self.beavel + self.border)
         bottomright = (self.screen_width - self.beavel - self.border,
-                       self.beavel + self.border + 2 * self.info_beavel + self.info_height)
+                       self.menu_bar_height + self.beavel + self.border + 2 * self.info_beavel + self.info_height)
         self.draw_bevaled_border(topleft, bottomright, self.info_beavel, 'inset')
 
         # Border around tile board
         topleft = (self.beavel + self.border,
-                   self.beavel + 2 * self.border + 2 * self.info_beavel + self.info_height)
+                   self.menu_bar_height + self.beavel + 2 * self.border + 2 * self.info_beavel + self.info_height)
         bottomright = (self.screen_width - self.beavel - self.border,
                        self.screen_height - self.beavel - self.border)
         self.draw_bevaled_border(topleft, bottomright, self.beavel, 'inset')
@@ -331,6 +350,17 @@ class Minesweeper:  # Play State
                         self.face.update('opensmile')
                         self.face.draw(self.screen)
 
+                    # Menu bar buttons press down animation
+                    if self.icons[0].get_rect().collidepoint(mouse_pos):
+                        self.icons[0].update('active')
+                        self.icons[0].draw(self.screen)
+                    if self.icons[1].get_rect().collidepoint(mouse_pos):
+                        self.icons[1].update('active')
+                        self.icons[1].draw(self.screen)
+                    if self.icons[2].get_rect().collidepoint(mouse_pos):
+                        self.icons[2].update('active')
+                        self.icons[2].draw(self.screen)
+
                     # Tiles press down animation
                     # if tile_under_mouse:
 
@@ -347,6 +377,35 @@ class Minesweeper:  # Play State
                         self.face.draw(self.screen)
                         self.new_game()
 
+                    # Menu bar buttons click
+                    if self.icons[0].get_rect().collidepoint(mouse_pos):
+                        self.icons[0].update('active')
+                        self.icons[1].update('inactive')
+                        self.icons[2].update('inactive')
+                        self.rows = 9
+                        self.columns = 9
+                        self.num_bombs = 10
+                        self.new_game()
+                        
+                    if self.icons[1].get_rect().collidepoint(mouse_pos):
+                        self.icons[0].update('inactive')
+                        self.icons[1].update('active')
+                        self.icons[2].update('inactive')
+                        self.rows = 16
+                        self.columns = 16
+                        self.num_bombs = 40
+                        self.new_game()
+
+                    if self.icons[2].get_rect().collidepoint(mouse_pos):
+                        self.icons[0].update('inactive')
+                        self.icons[1].update('active')
+                        self.icons[2].update('inactive')
+                        self.rows = 16
+                        self.columns = 30
+                        self.num_bombs = 99
+                        self.new_game()
+
+
                 if event.type == pygame.MOUSEBUTTONUP and self.is_game_active:
 
                     # Tile interaction
@@ -356,6 +415,8 @@ class Minesweeper:  # Play State
                     if tile_under_mouse and event.button == 3:
                         self.handle_right_click(tile_under_mouse)
                         self.draw_tiles()
+
+
 
             # Solved condition
             if len(self.closed_tiles) == self.num_bombs and self.is_game_active == True:
@@ -402,6 +463,7 @@ class Minesweeper:  # Play State
 
 
     def new_game(self) -> None:
+        self.display_init()
         self.is_game_active = True
         self.is_first_move = True
         self.bomb_list = []
@@ -418,26 +480,38 @@ class Minesweeper:  # Play State
 
         # Draws UI elements
         self.draw_background()
-        
+
+        # Draws menu bar icons
+        self.icons = []
+        self.menu_topleft = (4, self.menu_bar_height / 2)
+        self.icons.append(MenuIcon('beginner', 'inactive', 0, self.menu_icons, self.menu_topleft, 40))
+        self.icons.append(MenuIcon('intermediate', 'inactive', 1, self.menu_icons, self.menu_topleft, 40))
+        self.icons.append(MenuIcon('expert', 'inactive', 2, self.menu_icons, self.menu_topleft, 40))
+        # self.icons.append(MenuIcon('custom', 'inactive', 3, self.menu_icons, self.menu_topleft, 40))
+
+        for icon in self.icons:
+            icon.draw(self.screen)
+
         # Draws info bar content
-        self.face = SmileFace(self.face_images, self.screen_width, self.ui_scale)
+        self.face = SmileFace(self.face_images, self.face_button_midtop)
         self.face.draw(self.screen)
 
         self.info_bomb = []
         self.info_time = []
 
         for i in range(0, 3):
-            self.info_bomb.append(Digit(i, self.digit_images, self.digits_bomb_topleft, self.digit_width, self.ui_scale))
-            self.info_time.append(Digit(i, self.digit_images, self.digits_time_topleft, self.digit_width, self.ui_scale))
+            self.info_bomb.append(Digit(i, self.digit_images, self.digits_bomb_topleft, self.digit_width))
+            self.info_time.append(Digit(i, self.digit_images, self.digits_time_topleft, self.digit_width))
             self.info_bomb[i].draw(self.screen)
             self.info_time[i].draw(self.screen)
 
         # Draws board
         for position in self.closed_tiles:
-            tile = Tile(position, self.tile_images, self.board_topleft, self.tile_size, self.ui_scale)
+            tile = Tile(position, self.tile_images, self.board_topleft, self.tile_size)
             self.tiles[position] = tile
         self.draw_tiles()
 
+        self.clock = pygame.time.Clock()
         self.second = pygame.USEREVENT + 1
         pygame.time.set_timer(self.second, 1000)
 
@@ -452,15 +526,15 @@ class Minesweeper:  # Play State
 
 
 class Tile(pygame.sprite.Group):
-    def __init__(self, grid_pos: tuple[int, int], images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], tile_size: int, ui_scale: int):
+    def __init__(self, grid_pos: tuple[int, int], images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], spacing: int):
         super().__init__()
 
         self.images = images  # 'closed_blank', 'closed_flag', 'closed_question', 'open_bomb', 'open_bomb_red', 'open_bomb_missflagged'
                               # 'open_0', 'open_1', 'open_2', 'open_3', 'open_4', 'open_5', 'open_6', 'open_7', 'open_8'
         self.image = self.images['closed_blank']
-        tile_x = screen_topleft[0] + tile_size * grid_pos[0]
-        tile_y = screen_topleft[1] + tile_size * grid_pos[1]
-        self.tile_rect = self.image.get_rect(topleft = (tile_x, tile_y))
+        x = screen_topleft[0] + spacing * grid_pos[0]
+        y = screen_topleft[1] + spacing * grid_pos[1]
+        self.tile_rect = self.image.get_rect(topleft = (x, y))
 
 
     def update(self, state: str, content: str) -> None:
@@ -476,14 +550,14 @@ class Tile(pygame.sprite.Group):
         screen.blit(self.image, self.tile_rect)
 
 class Digit(pygame.sprite.Group):
-    def __init__(self, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], digit_size: int, ui_scale: int):
+    def __init__(self, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_topleft: tuple[int, int], spacing: int):
         super().__init__()
 
         self.images = images  # '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
         self.image = self.images['0']
-        tile_x = screen_topleft[0] + digit_size * grid_pos
-        tile_y = screen_topleft[1]
-        self.digit_rect = self.image.get_rect(topleft = (tile_x, tile_y))
+        x = screen_topleft[0] + spacing * grid_pos
+        y = screen_topleft[1]
+        self.digit_rect = self.image.get_rect(topleft = (x, y))
     
 
     def update(self, content: str) -> None:
@@ -494,12 +568,12 @@ class Digit(pygame.sprite.Group):
         screen.blit(self.image, self.digit_rect)
 
 class SmileFace(pygame.sprite.Sprite):
-    def __init__(self, images: dict[str: pygame.surface.Surface], screen_width: int, ui_scale: int):
+    def __init__(self, images: dict[str: pygame.surface.Surface], screen_midtop: int):
         super().__init__()
 
         self.images = images  # 'facesmile', 'opensmile', 'faceooh', 'facewin', 'facedead'
         self.image = self.images['facesmile']
-        self.smile_rect = self.image.get_rect(midtop = (screen_width / 2, 15 * ui_scale))
+        self.smile_rect = self.image.get_rect(midtop = (screen_midtop))
 
 
     def update(self, state: str):
@@ -512,6 +586,28 @@ class SmileFace(pygame.sprite.Sprite):
 
     def get_rect(self) -> pygame.rect.Rect:
         return self.smile_rect
+
+class MenuIcon(pygame.sprite.Group):
+    def __init__(self, type: str, state: str, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_midleft: tuple[int, int], spacing: int):
+        super().__init__()
+
+        self.type = type
+        self.images = images  # 'beginner_active', 'beginner_inactive', 'intermediate_active', 'intermediate_inactive', 'expert_active', 'expert_inactive', 'custom_active', 'custom_inactive'
+        self.image = self.images[f'{self.type}_{state}']
+        x = screen_midleft[0] + spacing * grid_pos
+        y = screen_midleft[1]
+        self.icon_rect = self.image.get_rect(midleft = (x, y))
+
+
+    def update(self, state: str) -> None:
+        self.image = self.images[f'{self.type}_{state}']
+
+    def draw(self, screen: pygame.surface.Surface) -> None:
+        screen.blit(self.image, self.icon_rect)
+
+
+    def get_rect(self) -> pygame.rect.Rect:
+        return self.icon_rect
 
 
 if __name__ == "__main__":
