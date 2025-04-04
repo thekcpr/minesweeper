@@ -12,8 +12,10 @@
   </tr>
 </table>
 
-![Beginner Level](screenshots/gameplay-beginner.png)
-
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="screenshots/theme_swap_beginner_dark.gif">
+  <img alt="Minesweeper Themes" src="screenshots/theme_swap_beginner_light.gif">
+</picture>
 ---
 
 ## Requirements
@@ -30,10 +32,13 @@ pip install -r requirements.txt
 ## TODO
 
 - [ ] Implement proper face and tile animation when hovered over and when the mouse button is pressed
-- [ ] Implement an options menu with multiple difficulty levels (Beginner, Intermediate, Expert)
+- [x] Implement an options menu with multiple difficulty levels (Beginner, Intermediate, Expert)
+- [ ] Implement proper menu bar
 - [ ] Implement a pop-up window for "Failed" and "Solved" messages
 - [ ] Add a high-score or best-time record system
 - [ ] Add docstrings to all functions
 - [ ] Implement a board solver to ensure the generated board is solvable without guessing
 - [ ] Consider adding different classes or states to manage various game phases (e.g., "Running", "Paused", "GameOver")
-- [ ] Offer different Minesweeper visuals and sounds for each Minesweeper version (Windows 3.1, XP, 7)
+- [x] Offer different Minesweeper visuals and sounds for classic Minesweeper versions (Windows 3.1, XP)
+- [ ] Create theme for Aero Minesweeper (Windows Vista)
+- [ ] Implement animations for tile generation, bomb detonation, and more
