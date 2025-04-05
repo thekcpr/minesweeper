@@ -13,6 +13,12 @@ class BoardModel:
         self.tiles_to_update = []
         self.num_flags = 0
 
+        self.CLOSED = 'closed'
+        self.FLAGGED = 'flagged'
+        self.MISSFLAGGED = 'missflagged'
+        self.QUESTION = 'question'
+        self.OPEN = 'open'
+
         self.tile_content = {'bomb': 'open_bomb',
                              'fail': 'open_bomb_red',
                              '0': 'open_0',
@@ -27,7 +33,7 @@ class BoardModel:
 
 
         self.board: dict[tuple[int, int]: dict[str: str, str: str]] = {}  # dict of tile dicts
-        self.empty_tile = {'state': 'closed', 'content': ''}  # states: closed / open / flagged / question. content: bomb, 0, 1, 2, 3, 4, 5, 6, 7, 8
+        self.empty_tile = {'state': self.CLOSED, 'content': ''}  # states: closed / open / flagged / question. content: bomb, 0, 1, 2, 3, 4, 5, 6, 7, 8
 
         # Generates dict of board without content
         for x in range(self.cols):
@@ -103,22 +109,22 @@ class BoardModel:
     def reveal(self, tile: tuple[int, int]) -> None:
         self.tiles_to_update = []
 
-        if self.board[tile]['state'] != 'flagged':
+        if self.board[tile]['state'] != self.FLAGGED:
             self.hendle_chord(tile)
             self.reveal_tile(tile)
 
 
     def handle_right_click(self, tile: tuple[int, int]) -> None:
-        if self.board[tile]['state'] == 'closed':
-            self.board[tile]['state'] = 'flagged'
+        if self.board[tile]['state'] == self.CLOSED:
+            self.board[tile]['state'] = self.FLAGGED
             self.num_flags += 1
 
-        elif self.board[tile]['state'] == 'flagged':
-            self.board[tile]['state'] = 'question'
+        elif self.board[tile]['state'] == self.FLAGGED:
+            self.board[tile]['state'] = self.QUESTION
             self.num_flags -= 1
 
-        elif self.board[tile]['state'] == 'question':
-            self.board[tile]['state'] = 'closed'
+        elif self.board[tile]['state'] == self.QUESTION:
+            self.board[tile]['state'] = self.CLOSED
 
         self.tiles_to_update.append(tile)
 
@@ -145,9 +151,9 @@ class BoardModel:
             self.failed(tile)
             return
         
-        if self.board[tile]['state'] == 'closed':
+        if self.board[tile]['state'] == self.CLOSED or self.board[tile]['state'] == self.QUESTION:
             if self.board[tile]['content'] == self.tile_content['0']:
-                self.board[tile]['state'] = 'open'
+                self.board[tile]['state'] = self.OPEN
                 self.closed_tiles.remove(tile)
                 self.tiles_to_update.append(tile)
                 cluster_tiles = self.get_surrounding_tiles(tile)
@@ -155,7 +161,7 @@ class BoardModel:
                     self.reveal_tile(tile_xy)
 
             elif self.board[tile]['content'] != self.tile_content['0']:
-                self.board[tile]['state'] = 'open'
+                self.board[tile]['state'] = self.OPEN
                 self.closed_tiles.remove(tile)
                 self.tiles_to_update.append(tile)
 
@@ -163,7 +169,7 @@ class BoardModel:
     def hendle_chord(self, tile: tuple[int, int]) -> None:
         if self.board[tile]['content'] == self.tile_content['0']:
             return
-        if self.board[tile]['state'] != 'open':
+        if self.board[tile]['state'] != self.OPEN:
             return
 
         tiles = self.get_surrounding_tiles(tile)
@@ -171,11 +177,11 @@ class BoardModel:
         num_bombs = 0
         chords = []
         for tile_xy in tiles:
-            if self.board[tile_xy]['state'] == 'flagged':
+            if self.board[tile_xy]['state'] == self.FLAGGED:
                 num_flagged += 1
             if self.board[tile_xy]['content'] == self.tile_content['bomb']:
                 num_bombs += 1
-            if self.board[tile_xy]['state'] == 'closed' and self.board[tile_xy]['content'] != 'bomb':
+            if self.board[tile_xy]['state'] == self.CLOSED:
                 chords.append(tile_xy)
         if num_flagged == num_bombs:
             for chord in chords:
@@ -184,21 +190,25 @@ class BoardModel:
 
     def failed(self, tile: tuple[int, int]) -> None:
         self.board[tile]['content'] = self.tile_content['fail']
+
+        # Reveal missflagged tiles
         for tile_xy in self.closed_tiles:
-            if self.board[tile_xy]['state'] == 'flagged' and self.board[tile_xy]['content'] != self.tile_content['bomb']:
-                self.board[tile_xy]['state'] = 'missflagged'
+            if self.board[tile_xy]['state'] == self.FLAGGED and self.board[tile_xy]['content'] != self.tile_content['bomb']:
+                self.board[tile_xy]['state'] = self.MISSFLAGGED
                 self.tiles_to_update.append(tile_xy)
         self.tiles_to_update.append(tile)
         self.is_game_active = False
+
+        # Reveal all bombs
         for bomb in self.bomb_list:
-            if self.board[bomb]['state'] != 'flagged':
-                self.board[bomb]['state'] = 'open'
+            if self.board[bomb]['state'] != self.FLAGGED:
+                self.board[bomb]['state'] = self.OPEN
                 self.tiles_to_update.append(bomb)
 
 
     def flag_remaining_tiles(self) -> None:
         for tile in self.closed_tiles:
-            if self.board[tile]['state'] != 'flagged':
-                self.board[tile]['state'] = 'flagged'
+            if self.board[tile]['state'] != self.FLAGGED:
+                self.board[tile]['state'] = self.FLAGGED
                 self.num_flags += 1
                 self.tiles_to_update.append(tile)
