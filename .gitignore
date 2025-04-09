@@ -5,3 +5,7 @@
 __pycache__/
 *.py[cod]
 setup.py
+
+# Ignore photoshop files (working assets)
+*.psd
+*.psb
