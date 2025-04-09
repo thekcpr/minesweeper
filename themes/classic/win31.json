@@ -1,0 +1,15 @@
+{
+    "id": "win31",
+    "colors": {
+        "highlight": [255, 255, 255],
+        "neutral": [193, 196, 199],
+        "shadow": [133, 136, 139]
+    },
+    "paths": {
+        "tile": "assets/classic/win31/images/tile",
+        "digit": "assets/classic/win31/images/digit",
+        "face": "assets/classic/win31/images/face",
+        "sound": "assets/classic/win31/sounds"
+    },
+    "icon": "assets/classic/win31/icon"
+}

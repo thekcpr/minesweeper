@@ -1,0 +1,15 @@
+{
+    "id": "winxp",
+    "colors": {
+        "highlight": [255, 255, 255],
+        "neutral": [192, 192, 192],
+        "shadow": [128, 128, 128]
+    },
+    "paths": {
+        "tile": "assets/classic/winxp/images/tile",
+        "digit": "assets/classic/winxp/images/digit",
+        "face": "assets/classic/winxp/images/face",
+        "sound": "assets/classic/winxp/sounds"
+    },
+    "icon": "assets/classic/winxp/icon"
+}

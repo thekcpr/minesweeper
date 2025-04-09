@@ -9,6 +9,7 @@ class BoardModel:
 
         self.game_failed = False
         self.bomb_list = []
+        self.all_tiles = []
         self.closed_tiles = []
         self.tiles_to_update = []
         self.num_flags = 0
@@ -39,9 +40,9 @@ class BoardModel:
         for x in range(self.cols):
             for y in range(self.rows):
                 self.board[(x, y)] = self.empty_tile.copy()
+                self.all_tiles.append((x, y))
                 self.closed_tiles.append((x, y))
                 self.tiles_to_update.append((x, y))
-
 
     def get_cols(self) -> int:
         return self.cols
@@ -57,6 +58,10 @@ class BoardModel:
 
     def get_unflagged_bombs_num(self) -> int:
         return self.num_bombs - self.num_flags
+
+
+    def get_all_tiles(self) -> list[tuple[int, int]]:
+        return self.all_tiles
 
 
     def get_tiles_to_update(self) -> list[tuple[int, int]]:

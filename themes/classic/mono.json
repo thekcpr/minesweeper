@@ -1,0 +1,15 @@
+{
+    "id": "mono",
+    "fallback_id": "winxp",
+    "colors": {
+        "highlight": [255, 255, 255],
+        "neutral": [192, 192, 192],
+        "shadow": [0, 0, 0]
+    },
+    "paths": {
+        "tile": "assets/classic/mono/images/tile",
+        "digit": "assets/classic/mono/images/digit",
+        "face": "assets/classic/mono/images/face",
+        "sound": "assets/aero/seven/sounds"
+    }
+}

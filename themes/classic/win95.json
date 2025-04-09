@@ -1,0 +1,16 @@
+{
+    "id": "win95",
+    "fallback_id": "win31",
+    "colors": {
+        "highlight": [255, 255, 255],
+        "neutral": [192, 192, 192],
+        "shadow": [128, 128, 128]
+    },
+    "paths": {
+        "tile": "assets/classic/win95/images/tile",
+        "digit": "assets/classic/winxp/images/digit",
+        "face": "assets/classic/win95/images/face",
+        "sound": "assets/classic/win31/sounds"
+    },
+    "icon": "assets/classic/win95/icon"
+}

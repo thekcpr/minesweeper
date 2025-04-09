@@ -1,0 +1,29 @@
+{
+    "theme": "Classic",
+    "styles": [
+        {
+            "id": "win31",
+            "name": "Windows 3.1",
+            "path": "view/themes/classic/win31.json",
+            "icon": "assets/classic/win31/icon.png"
+        },
+        {
+            "id": "win95",
+            "name": "Windows 95",
+            "path": "view/themes/classic/win95.json",
+            "icon": "assets/classic/win95/icon.png"
+        },
+        {
+            "id": "winxp",
+            "name": "Windows XP",
+            "path": "view/themes/classic/winxp.json",
+            "icon": "assets/classic/winxp/icon.png"
+        },
+        {
+            "id": "mono",
+            "name": "Windows Mono",
+            "path": "view/themes/classic/mono.json",
+            "icon": "assets/classic/mono/icon.png"
+        }
+    ]
+}

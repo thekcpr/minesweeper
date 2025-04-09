@@ -24,6 +24,8 @@
 
 ---
 
+<br><br><br>
+
 # Gameplay Screenshots
 
 <picture>
@@ -33,40 +35,46 @@
 
 ---
 
-## Themes
+<br><br><br>
+
+# Themes
 
 This project aims to support visual styles that replicate the look and feel of two main design categories: **Classic** and **Aero**.
 
 Available and planned themes include:
 
 - **Classic**
-  - [x] Windows 3.1
-  - [x] Windows 95 / 98 / ME
-  - [x] Windows 2000 / XP
-  - [ ] **Monochrome** *(shared fallback style)*
+  - [ ] PMMine
+  - [ ] Mine 2.6 / 2.9
+  - [x] Minesweeper for Windows 3.1
+  - [x] Minesweeper for Windows 95 / 98 / ME
+  - [x] Minesweeper for Windows 2000 / XP
+  - [ ] Prato Fiorito for Windows 2000
+  - [ ] Prato Fiorito for Windows XP
+  - [ ] Prato Fiorito Monochrome
+  - [x] Monochrome
 
 - **Aero**
   - [ ] Windows Vista / 7 *(Blue and Green Tiles, Bombs and Flowers)*
 
 ---
 
-##  Changing the Visual Style Manually
+<br><br><br>
 
-To change the visual theme manually during development, edit the following line  
-in the `display_init()` method located in **`view.py`**, line **157**:
+# Changing the Visual Style In-Game
 
-```python
-self.ui_theme = view.Win31(self.rows, self.cols)
-```
+You can now switch between visual styles in Classic theme while the game is running by pressing one of the number keys:
 
-Replace Win31 with one of the available theme classes:
-- Win31
-- Win95
-- WinXP
+- `1` – Windows 3.1 style
+- `2` – Windows 95 style
+- `3` – Windows XP style
+- `4` – Mono style
 
 ---
 
-## Requirements
+<br><br><br>
+
+# Requirements
 
 
 Make sure you have Python 3 installed, then install the required dependencies from `requirements.txt`. For example:
@@ -76,6 +84,8 @@ pip install -r requirements.txt
 ```
 
 ---
+
+<br><br><br>
 
 ## TODO
 
