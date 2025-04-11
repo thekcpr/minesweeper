@@ -38,21 +38,15 @@ class ClassicTheme(Theme):
         self.face_button_midtop = (self.screen_width / 2,
                                    self.menu_bar_height + self.beavel + self.border + self.info_beavel + 4 * self.ui_scale)
 
-        # # Draws info bar content
-        # self.face = SmileFace(self.face_surf, self.face_button_midtop)
-        # self.face.draw(self.screen)
-
-
-
 
 # =========================================================
     # region ASSET LOADERS
 # =========================================================
 
-    def load_screen(self, screen) -> None:
+    def load_screen(self, screen: pygame.surface.Surface) -> None:
         self.screen = screen
 
-    def load_style_assets(self, style) -> None:
+    def load_style_assets(self, style: str) -> None:
 
         style_path = f"themes/classic/{style}.json"
         with open(f'{style_path}', 'r') as style_json:
@@ -180,7 +174,7 @@ class ClassicTheme(Theme):
         self.draw_bevaled_border(self.background, topleft, bottomright, self.digit_beavel, 'inset')
 
  
-    def draw_bevaled_border(self, screen, topleft: tuple[int, int], bottomright: tuple[int, int], thickness: int, type: str) -> None:
+    def draw_bevaled_border(self, screen: pygame.surface.Surface, topleft: tuple[int, int], bottomright: tuple[int, int], thickness: int, type: str) -> None:
         if type == 'outset': color = (self.highlight_color, self.shadow_color)
         if type == 'inset': color = (self.shadow_color, self.highlight_color)
         points = {'topleft': (topleft[0], topleft[1]),
@@ -227,14 +221,6 @@ class ClassicTheme(Theme):
     def get_tile_size(self) -> int:
         return self.tile_size
 
-
-    def get_face_images(self) -> dict[str: pygame.surface.Surface]:
-        return self.face_surf
-
-
-    def get_face_button_midtop(self) -> tuple[int, int]:
-        return self.face_button_midtop
-
     # endregion
 
 
@@ -242,7 +228,7 @@ class ClassicTheme(Theme):
     # region INFO SPRITES
 # =========================================================
 
-    def built_info_sprites(self):
+    def build_info_sprites(self):
         self.mines_couter = ThreeDigitDisplay(self.digit_surf, self.digits_bomb_topleft)
         self.timer = ThreeDigitDisplay(self.digit_surf, self.digits_time_topleft)
         self.face = SmileFace(self.face_surf, self.face_button_midtop)
@@ -251,6 +237,7 @@ class ClassicTheme(Theme):
     def update_mines_couter(self, number: int) -> None:
         self.mines_couter.update(number)
         self.mines_couter.draw(self.screen)
+
 
     def update_timer(self, number: int) -> None:
         self.timer.update(number)

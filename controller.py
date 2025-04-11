@@ -174,7 +174,7 @@ class GameController:
         self.gui.load_style_assets('mono')
         self.gui.draw_background()
 
-        self.gui.built_info_sprites()
+        self.gui.build_info_sprites()
         self.gui.update_mines_couter(self.bombs)
         self.gui.update_timer(0)
 
@@ -205,6 +205,7 @@ class GameController:
         self.second = pygame.USEREVENT + 1
         pygame.time.set_timer(self.second, 1000)
 
+
     def get_tile_under_mouse(self, position) -> tuple[int, int] | bool:
         x = (position[0] - self.gui.get_board_topleft()[0]) // self.gui.get_tile_size()
         y = (position[1] - self.gui.get_board_topleft()[1]) // self.gui.get_tile_size()
@@ -212,28 +213,28 @@ class GameController:
             return (x, y)
         else: return False
 
+
     def update_theme(self, style: str) -> None:
         self.gui.load_style_assets(style)
         self.gui.draw_background()
-        self.gui.built_info_sprites()
+        self.gui.build_info_sprites()
         self.gui.update_face_sprite(self.face_state)
         self.draw_board(self.board.get_board(), self.board.get_all_tiles())
 
 
-
-    def draw_board(self, board, all_tiles):
+    def draw_board(self, board: dict[tuple[int, int]: dict[str: str, str: str]], all_tiles: list[tuple[int, int]]):
         # Variables for dict of Tile class elements
         self.tiles: dict[tuple[int, int], Tile] = {}
 
         for position in all_tiles:
             tile = Tile(position, self.gui.get_tile_images(), self.gui.get_board_topleft(), self.gui.get_tile_size())
-            # self.tiles[position] = tile
             self.tiles[position] = tile
         self.draw_tiles(board, all_tiles)
 
         self.gui.update_timer(0)
 
-    def draw_tiles(self, board, tiles_to_update: list[tuple[int, int]]) -> None:
+
+    def draw_tiles(self, board: dict[tuple[int, int]: dict[str: str, str: str]], tiles_to_update: list[tuple[int, int]]) -> None:
         for position in tiles_to_update:
             self.tiles[position].update(board[position]['state'], board[position]['content'])
             self.tiles[position].draw(self.screen)
