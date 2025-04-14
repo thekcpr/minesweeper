@@ -3,14 +3,14 @@ import pygame
 from sys import exit
 
 from model import BoardModel
-from themes import ClassicTheme
-from themes.sprites import Tile
+from view import ClassicTheme
+from view.sprites import Tile
 
 class GameController:
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
-        icon = pygame.image.load('images/icon/Minesweeper_Icon_App-assets/Icon-macOS-256x256@1x.png')
+        icon = pygame.image.load('assets/icon/Icon-macOS-256x256@1x.png')
         pygame.display.set_icon(icon)
         pygame.display.set_caption('Minesweeper')
 

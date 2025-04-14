@@ -48,7 +48,7 @@ class ClassicTheme(Theme):
 
     def load_style_assets(self, style: str) -> None:
 
-        style_path = f"themes/classic/{style}.json"
+        style_path = f"view/classic/{style}.json"
         with open(f'{style_path}', 'r') as style_json:
             self.style_config = json.load(style_json, )
             style_json.close
