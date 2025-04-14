@@ -3,7 +3,7 @@
 <table>
   <tr>
     <td style="border: 0px">
-      <img src="images/icon/Minesweeper_Icon_App-assets/Icon-macOS-256x256@1x.png" alt="Minesweeper Icon" width="256">
+      <img src="docs/images/icon.png" alt="Minesweeper Icon" width="256">
     </td>
     <td style="border: 0px">
 <p>
@@ -29,8 +29,8 @@
 # Gameplay Screenshots
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="screenshots/theme_swap_beginner_dark.gif">
-  <img alt="Minesweeper Themes" src="screenshots/theme_swap_beginner_light.gif">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/theme_swap_beginner_dark.gif">
+  <img alt="Minesweeper Themes" src="docs/images/theme_swap_beginner_light.gif">
 </picture>
 
 ---
