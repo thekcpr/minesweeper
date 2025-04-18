@@ -18,6 +18,8 @@ class GameController:
         self.cols = 9
         self.bombs = 10
 
+        self.style = 'winxp'
+
         self.is_first_move = True
         self.is_board_not_solved = True
         self.is_game_active = True
@@ -37,13 +39,36 @@ class GameController:
                     exit()
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-                    self.update_theme('win31')
+                    self.style = 'win31'
+                    self.update_theme(self.style)
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                    self.update_theme('win95')
+                    self.style = 'win95'
+                    self.update_theme(self.style)
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
-                    self.update_theme('winxp')
+                    self.style = 'winxp'
+                    self.update_theme(self.style)
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
-                    self.update_theme('mono')
+                    self.style = 'mono'
+                    self.update_theme(self.style)
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                    self.rows = 9
+                    self.cols = 9
+                    self.bombs = 10
+                    self.display_init()
+                    self.new_game()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                    self.rows = 16
+                    self.cols = 16
+                    self.bombs = 40
+                    self.display_init()
+                    self.new_game()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                    self.rows = 16
+                    self.cols = 30
+                    self.bombs = 99
+                    self.display_init()
+                    self.new_game()
 
                 if event.type == self.second and self.is_game_active and self.is_first_move == False:
                     self.gui.play_tick_sound()
@@ -57,20 +82,8 @@ class GameController:
                     if self.face and self.face.rect.collidepoint(event.pos):
                         self.gui.update_face_sprite('opensmile')
 
-                    # Menu bar buttons press down animation
-                    # if self.icons[0].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[0].update('active')
-                    #     self.icons[0].draw(self.screen)
-                    # if self.icons[1].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[1].update('active')
-                    #     self.icons[1].draw(self.screen)
-                    # if self.icons[2].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[2].update('active')
-                    #     self.icons[2].draw(self.screen)
-
             #         # Tiles press down animation
             #         # if tile_under_mouse:
-
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.gui.update_face_sprite(self.face_state)
@@ -80,41 +93,6 @@ class GameController:
                     # Restart button click
                     if self.face and self.face.rect.collidepoint(event.pos):
                         self.new_game()
-
-# region icons
-
-                    # # Menu bar buttons click
-                    # if self.icons[0].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[0].update('active')
-                    #     self.icons[1].update('inactive')
-                    #     self.icons[2].update('inactive')
-                    #     self.rows = 9
-                    #     self.cols = 9
-                    #     self.bombs = 10
-                    #     self.display_init()
-                    #     self.new_board()
-                        
-                    # if self.icons[1].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[0].update('inactive')
-                    #     self.icons[1].update('active')
-                    #     self.icons[2].update('inactive')
-                    #     self.rows = 16
-                    #     self.cols = 16
-                    #     self.bombs = 40
-                    #     self.display_init()
-                    #     self.new_board()
-
-                    # if self.icons[2].get_rect().collidepoint(mouse_pos):
-                    #     self.icons[0].update('inactive')
-                    #     self.icons[1].update('active')
-                    #     self.icons[2].update('inactive')
-                    #     self.rows = 16
-                    #     self.cols = 30
-                    #     self.bombs = 99
-                    #     self.display_init()
-                    #     self.new_board()
-
-# endregion
 
             # Game State Events
                     if not self.is_game_active: break
@@ -168,12 +146,11 @@ class GameController:
 
 
     def display_init(self) -> None:
-
         self.gui = ClassicTheme(self.rows, self.cols)
         screen_size = self.gui.get_screen_size()
         self.screen = pygame.display.set_mode(screen_size)
         self.gui.load_screen(self.screen)
-        self.gui.load_style_assets('mono')
+        self.gui.load_style_assets(self.style)
         self.gui.draw_background()
 
         self.gui.build_info_sprites()
@@ -182,23 +159,12 @@ class GameController:
 
         self.face = self.gui.get_face_sprite()
 
-        # MAKE IT PART OF THEMES
-        # # Draws menu bar icons
-        # self.icons = []
-        # self.menu_topleft = (4, self.ui_theme.menu_bar_height / 2)
-        # self.icons.append(view.MenuIcon('beginner', 'inactive', 0, self.ui_theme.menu_icons, self.menu_topleft, 40))
-        # self.icons.append(view.MenuIcon('intermediate', 'inactive', 1, self.ui_theme.menu_icons, self.menu_topleft, 40))
-        # self.icons.append(view.MenuIcon('expert', 'inactive', 2, self.ui_theme.menu_icons, self.menu_topleft, 40))
-        # # self.icons.append(view.MenuIcon('custom', 'inactive', 3, self.ui.menu_icons, self.menu_topleft, 40))
-
-        # for icon in self.icons:
-        #     icon.draw(self.screen)
-
 
     def new_game(self) -> None:
         self.board = BoardModel(self.rows, self.cols, self.bombs)
         self.is_first_move = True
         self.is_game_active = True
+        self.time = 0
         self.face_state = 'facesmile'
         self.gui.update_face_sprite(self.face_state)
 
@@ -240,31 +206,3 @@ class GameController:
         for position in tiles_to_update:
             self.tiles[position].update(board[position]['state'], board[position]['content'])
             self.tiles[position].draw(self.screen)
-
-
-
-
-
-
-# class MenuIcon(pygame.sprite.Group):
-#     def __init__(self, type: str, state: str, grid_pos: int, images: dict[str: pygame.surface.Surface], screen_midleft: tuple[int, int], spacing: int):
-#         super().__init__()
-
-#         self.type = type
-#         self.images = images  # 'beginner_active', 'beginner_inactive', 'intermediate_active', 'intermediate_inactive', 'expert_active', 'expert_inactive', 'custom_active', 'custom_inactive'
-#         self.image = self.images[f'{self.type}_{state}']
-#         x = screen_midleft[0] + spacing * grid_pos
-#         y = screen_midleft[1]
-#         self.icon_rect = self.image.get_rect(midleft = (x, y))
-
-
-#     def update(self, state: str) -> None:
-#         self.image = self.images[f'{self.type}_{state}']
-
-
-#     def draw(self, screen: pygame.surface.Surface) -> None:
-#         screen.blit(self.image, self.icon_rect)
-
-
-#     def get_rect(self) -> pygame.rect.Rect:
-#         return self.icon_rect

@@ -61,14 +61,21 @@ Available and planned themes include:
 
 <br><br><br>
 
-# Changing the Visual Style In-Game
 
-You can now switch between visual styles in Classic theme while the game is running by pressing one of the number keys:
+# Keyboard Controls
 
-- `1` – Windows 3.1 style
-- `2` – Windows 95 style
-- `3` – Windows XP style
-- `4` – Mono style
+- **Visual Style**  
+  Switch between visual styles (Classic theme) at any time by pressing:
+  - `1` – Windows 3.1 style
+  - `2` – Windows 95 style
+  - `3` – Windows XP style
+  - `4` – Mono style
+
+- **Game Difficulty**  
+  Instantly start a new game with a selected difficulty by pressing:
+  - `B` – Beginner (9×9, 10 Mines)  
+  - `I` – Intermediate (16×16, 40 Mines)  
+  - `E` – Expert (30×16, 99 Mines)
 
 ---
 
