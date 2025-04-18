@@ -22,10 +22,11 @@ class GameController:
         self.is_board_not_solved = True
         self.is_game_active = True
 
+        self.round_start_time = 0
+        self.time = 0
+
         self.display_init()
         self.new_game()
-
-        self.round_time = 0
 
 
     def main_loop(self) -> None:
@@ -125,7 +126,7 @@ class GameController:
                     if tile_under_mouse and event.button == 1:
 
                         if self.is_first_move:
-                            self.round_time = pygame.time.get_ticks()
+                            self.round_start_time = pygame.time.get_ticks()
                             self.is_first_move = False
                             self.board.generate_board(tile_under_mouse)
 
@@ -157,7 +158,8 @@ class GameController:
 
             # Updates unflagged bomb counter and timer
             if self.is_game_active and not self.is_first_move:
-                self.gui.update_timer((pygame.time.get_ticks() - self.round_time)//1000)
+                self.time = (pygame.time.get_ticks() - self.round_start_time)//1000
+                self.gui.update_timer(self.time)
             self.gui.update_mines_couter(self.board.get_unflagged_bombs_num())
                 
 
@@ -231,7 +233,7 @@ class GameController:
             self.tiles[position] = tile
         self.draw_tiles(board, all_tiles)
 
-        self.gui.update_timer(0)
+        self.gui.update_timer(self.time)
 
 
     def draw_tiles(self, board: dict[tuple[int, int]: dict[str: str, str: str]], tiles_to_update: list[tuple[int, int]]) -> None:
