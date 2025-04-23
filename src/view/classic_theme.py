@@ -35,7 +35,6 @@ class ClassicTheme(Theme):
 
         self.board_topleft = (self.beavel + self.border + self.beavel,
                               self.menu_bar_height + 2 * self.beavel + 2 * self.border + 2 * self.info_beavel + self.info_height)
-        print(self.board_topleft)
         self.digits_bomb_topleft = (self.beavel + 2  * self.border + self.info_beavel + self.digit_beavel,
                                     self.menu_bar_height + self.beavel + self.border + self.info_beavel + 4 * self.ui_scale + self.digit_beavel)
         self.digits_time_topleft = (self.screen_width - self.beavel - 2 * self.border - self.info_beavel - 2 * self.digit_beavel - 3 * self.digit_width,
