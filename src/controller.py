@@ -23,6 +23,8 @@ class GameController:
         self.is_first_move = True
         self.is_board_not_solved = True
         self.is_game_active = True
+        self.is_button_pressed = False
+        self.hover_tile = None
 
         self.round_start_time = 0
         self.time = 0
@@ -74,7 +76,9 @@ class GameController:
                     self.gui.play_tick_sound()
 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.gui.update_face_sprite('faceooh')
+                    self.is_button_pressed = True
+                    if self.is_game_active:
+                        self.gui.update_face_sprite('faceooh')
                     mouse_pos = pygame.mouse.get_pos()
                     tile_under_mouse = self.get_tile_under_mouse(mouse_pos)
 
@@ -82,10 +86,16 @@ class GameController:
                     if self.face and self.face.rect.collidepoint(event.pos):
                         self.gui.update_face_sprite('opensmile')
 
-            #         # Tiles press down animation
-            #         # if tile_under_mouse:
+                if event.type == pygame.MOUSEMOTION and self.is_button_pressed:
+                    if not self.face.rect.collidepoint(event.pos):
+                        self.gui.update_face_sprite(self.face_state)  # przestań wyglądać na wciśniętą
+                    else:
+                        self.gui.update_face_sprite('opensmile')  # nadal wciśnięta
+                    if self.get_tile_under_mouse(event.pos) and self.is_game_active:
+                        self.gui.update_face_sprite('faceooh')
 
                 if event.type == pygame.MOUSEBUTTONUP:
+                    self.is_button_pressed = False
                     self.gui.update_face_sprite(self.face_state)
                     mouse_pos = pygame.mouse.get_pos()
                     tile_under_mouse = self.get_tile_under_mouse(mouse_pos)
@@ -132,6 +142,15 @@ class GameController:
                         self.board.handle_right_click(tile_under_mouse)
                         self.draw_tiles(self.board.get_board(), self.board.get_tiles_to_update())
 
+            if self.is_game_active and self.is_button_pressed:
+                current_hover = self.get_tile_under_mouse(pygame.mouse.get_pos())
+                if current_hover != self.hover_tile:
+                    if self.hover_tile:
+                        self.tiles[self.hover_tile].draw(self.screen)
+                    if current_hover:
+                        self.tiles[current_hover].draw_hover(self.screen)
+                    
+                    self.hover_tile = current_hover
 
 
             # Updates unflagged bomb counter and timer

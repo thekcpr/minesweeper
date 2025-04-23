@@ -15,7 +15,6 @@ class Tile(pygame.sprite.Group):
 
     def update(self, state: str, content: str) -> None:
         self.state = state  # 'closed', 'flagged', 'missflagged', 'question', 'open'
-        if self.state == 'hover': self.image = self.images['open_0']
         if self.state == 'closed': self.image = self.images['closed_blank']
         if self.state == 'flagged': self.image = self.images['closed_flagged']
         if self.state == 'missflagged': self.image = self.images['open_bomb_missflagged']
@@ -25,3 +24,8 @@ class Tile(pygame.sprite.Group):
 
     def draw(self, screen: pygame.surface.Surface) -> None:
         screen.blit(self.image, self.tile_rect)
+
+
+    def draw_hover(self, screen: pygame.surface.Surface) -> None:
+        if self.state == 'closed':
+            screen.blit(self.images['open_0'], self.tile_rect)
