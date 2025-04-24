@@ -195,6 +195,8 @@ class GameController:
     def handle_mouse_button_up(self, event):
         self.is_button_pressed = False
         self.gui.update_face_sprite(self.face_state)
+        if self.hover_tile:
+            self.tiles[self.hover_tile].draw(self.screen)
 
         mouse_pos = pygame.mouse.get_pos()
         tile_under_mouse = self.get_tile_under_mouse(mouse_pos)
