@@ -19,6 +19,8 @@ class GameController:
         self.bombs = 10
 
         self.style = 'winxp'
+        self.sounds = True
+        self.question_marks = False
 
         self.is_first_move = True
         self.is_board_not_solved = True
@@ -40,7 +42,8 @@ class GameController:
                     self.handle_quit_event()
 
                 if event.type == self.second and self.is_game_active and self.is_first_move == False:
-                    self.gui.play_tick_sound()
+                    if self.sounds:
+                        self.gui.play_tick_sound()
 
                 if event.type == pygame.KEYDOWN:
                     self.handle_heyboard_event(event)
@@ -147,6 +150,9 @@ class GameController:
             self.style = 'mono'
             self.update_theme(self.style)
 
+        if event.key == pygame.K_n:
+            self.new_game()
+
         if event.key == pygame.K_b:
             self.rows = 9
             self.cols = 9
@@ -165,6 +171,27 @@ class GameController:
             self.bombs = 99
             self.display_init()
             self.new_game()
+
+        if event.key == pygame.K_m:
+            if self.question_marks:
+                self.question_marks = False
+                self.board.celar_all_marks()
+                self.draw_tiles(self.board.get_board(), self.board.get_tiles_to_update())
+            else:
+                self.question_marks = True
+
+        if event.key == pygame.K_l:
+            # TODO: toggle color
+            pass
+
+        if event.key == pygame.K_s:
+            if self.sounds:
+                self.sounds = False
+            else:
+                self.sounds = True
+
+        if event.key == pygame.K_x:
+            self.handle_quit_event()
 
 
     def handle_mouse_button_down(self, event):
@@ -210,7 +237,11 @@ class GameController:
 
             # Handle Right click
             if tile_under_mouse and event.button == 3:
-                self.board.handle_right_click(tile_under_mouse)
+                if self.question_marks:
+                    self.board.handle_right_click(tile_under_mouse)
+                else:
+                    self.board.handle_right_click_without_marks(tile_under_mouse)
+
                 self.draw_tiles(self.board.get_board(), self.board.get_tiles_to_update())
 
             # Handle Left click
@@ -226,7 +257,8 @@ class GameController:
                 # Solved condition
                 if self.board.is_solved():
                     self.is_game_active = False
-                    self.gui.play_win_sound()
+                    if self.sounds:
+                        self.gui.play_win_sound()
                     self.face_state = 'facewin'
                     self.gui.update_face_sprite(self.face_state)
                     self.board.flag_remaining_tiles()
@@ -236,7 +268,8 @@ class GameController:
                 # Failed condition
                 elif self.board.is_failed():
                     self.is_game_active = False
-                    self.gui.play_lose_sound()
+                    if self.sounds:
+                        self.gui.play_lose_sound()
                     self.face_state = 'facedead'
                     self.gui.update_face_sprite(self.face_state)
 

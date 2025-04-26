@@ -24,7 +24,7 @@
 
 ---
 
-<br><br><br>
+<br>
 
 # Gameplay Screenshots
 
@@ -35,7 +35,7 @@
 
 ---
 
-<br><br><br>
+<br>
 
 # Themes
 
@@ -59,27 +59,36 @@ Available and planned themes include:
 
 ---
 
-<br><br><br>
+<br>
 
 
 # Keyboard Controls
 
-- **Visual Style**  
+### Visual Style
   Switch between visual styles (Classic theme) at any time by pressing:
   - `1` – Windows 3.1 style
   - `2` – Windows 95 style
   - `3` – Windows XP style
   - `4` – Mono style
 
-- **Game Difficulty**  
-  Instantly start a new game with a selected difficulty by pressing:
+### Game Controls
+  - `N` – Start a new game
+  - `X` – Exit the game
+
+  Or instantly start a new game with a selected difficulty by pressing:
   - `B` – Beginner (9×9, 10 Mines)  
   - `I` – Intermediate (16×16, 40 Mines)  
   - `E` – Expert (30×16, 99 Mines)
 
+### Game Properties
+
+  Toggle game settings by pressing:
+  - `M` – Marks (?)
+  - `S` – Sound
+
 ---
 
-<br><br><br>
+<br>
 
 # Requirements
 
@@ -92,7 +101,7 @@ pip install -r requirements.txt
 
 ---
 
-<br><br><br>
+<br>
 
 ## TODO
 
@@ -107,3 +116,5 @@ pip install -r requirements.txt
 - [x] Offer different Minesweeper visuals and sounds for classic Minesweeper versions (Windows 3.1, XP)
 - [ ] Create theme for Aero Minesweeper (Windows Vista)
 - [ ] Implement animations for tile generation, bomb detonation, and more
+
+---

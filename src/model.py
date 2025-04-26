@@ -17,7 +17,7 @@ class BoardModel:
         self.CLOSED = 'closed'
         self.FLAGGED = 'flagged'
         self.MISSFLAGGED = 'missflagged'
-        self.QUESTION = 'question'
+        self.MARKED = 'question'
         self.OPEN = 'open'
 
         self.tile_content = {'bomb': 'open_bomb',
@@ -125,15 +125,33 @@ class BoardModel:
             self.num_flags += 1
 
         elif self.board[tile]['state'] == self.FLAGGED:
-            self.board[tile]['state'] = self.QUESTION
+            self.board[tile]['state'] = self.MARKED
             self.num_flags -= 1
 
-        elif self.board[tile]['state'] == self.QUESTION:
+        elif self.board[tile]['state'] == self.MARKED:
             self.board[tile]['state'] = self.CLOSED
 
         self.tiles_to_update.append(tile)
 
 
+    def handle_right_click_without_marks(self, tile: tuple[int, int]) -> None:
+        if self.board[tile]['state'] == self.CLOSED:
+            self.board[tile]['state'] = self.FLAGGED
+            self.num_flags += 1
+
+        elif self.board[tile]['state'] == self.FLAGGED:
+            self.board[tile]['state'] = self.CLOSED
+            self.num_flags -= 1
+
+        self.tiles_to_update.append(tile)
+
+
+    def celar_all_marks(self) -> None:
+        for tile in self.closed_tiles:
+            if self.board[tile]['state'] == self.MARKED:
+                self.board[tile]['state'] = self.CLOSED
+
+                self.tiles_to_update.append(tile)
 
     def get_surrounding_tiles(self, tile: tuple[int, int]) -> list[tuple[int, int]]:
         surrounding_tiles = []
@@ -156,7 +174,7 @@ class BoardModel:
             self.failed(tile)
             return
         
-        if self.board[tile]['state'] == self.CLOSED or self.board[tile]['state'] == self.QUESTION:
+        if self.board[tile]['state'] == self.CLOSED or self.board[tile]['state'] == self.MARKED:
             if self.board[tile]['content'] == self.tile_content['0']:
                 self.board[tile]['state'] = self.OPEN
                 self.closed_tiles.remove(tile)
