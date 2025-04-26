@@ -10,6 +10,6 @@
         "tile": "assets/classic/mono/images/tile",
         "digit": "assets/classic/mono/images/digit",
         "face": "assets/classic/mono/images/face",
-        "sound": "assets/aero/seven/sounds"
+        "sound": "assets/classic/winxp/sounds"
     }
 }
